@@ -1,106 +1,66 @@
 const STATE_PREFIX = "moneymind_fusion_state_";
 
-const defaultState = () => ({
-const STATE_KEY = "moneymind_fusion_state_v2";
-const defaultState = {
-  ui: {
-    activeView: "records",
-    activeMonth: new Date().getMonth(),
-    activeYear: new Date().getFullYear(),
-    theme: "dark",
-    currency: "INR",
-    aiApiUrl: "http://localhost:3001",
-  },
-  accounts: {
-    cash: { id: "cash", name: "Cash", balance: 0 },
-    bank: { id: "bank", name: "Bank", balance: 0 },
-    card: { id: "card", name: "Card", balance: 0 },
-    card: { id: "card", name: "Card", balance: 0 }, // credit account
-  },
-  categories: {
-    income: ["Salary", "Bonus", "Interest", "Other Income"],
-    expense: [
-      "Food",
-      "Transport",
-      "Rent",
-      "Shopping",
-      "Entertainment",
-      "Education",
-      "Health",
-      "Other",
-    ],
-  },
-  budgets: {
-    monthly: {},
-  },
-  transactions: [],
-});
+function defaultState() {
+  return {
+    ui: {
+      activeView: "records",
+      activeMonth: new Date().getMonth(),
+      activeYear: new Date().getFullYear(),
+      theme: "dark",
+      currency: "INR",
+      aiApiUrl: "http://localhost:3001",
+    },
+    accounts: {
+      cash: { id: "cash", name: "Cash" },
+      bank: { id: "bank", name: "Bank" },
+      card: { id: "card", name: "Card" },
+    },
+    categories: {
+      income: ["Salary", "Bonus", "Interest", "Other Income"],
+      expense: ["Food", "Transport", "Rent", "Shopping", "Entertainment", "Other"],
+    },
+    budgets: { monthly: {} },
+    transactions: [],
+  };
+}
 
-let _saveTimeout = null;
+let AppState = defaultState();
 
 function getStateKey() {
   const user = typeof getCurrentUser === "function" ? getCurrentUser() : null;
   return user ? STATE_PREFIX + user : null;
 }
 
-function loadStateForUser(username) {
-  const key = STATE_PREFIX + username;
+function loadState() {
+  const key = getStateKey();
+  if (!key) return defaultState();
+
   const raw = localStorage.getItem(key);
   if (!raw) {
-    const state = JSON.parse(JSON.stringify(defaultState()));
-    localStorage.setItem(key, JSON.stringify(state));
-    return state;
+    localStorage.setItem(key, JSON.stringify(defaultState()));
+    return defaultState();
   }
-  const parsed = JSON.parse(raw);
-  if (!parsed.ui) parsed.ui = {};
-  parsed.ui.theme = parsed.ui.theme || "dark";
-  parsed.ui.currency = parsed.ui.currency || "INR";
-  parsed.ui.aiApiUrl = parsed.ui.aiApiUrl || "http://localhost:3001";
-  return parsed;
+
+  return JSON.parse(raw);
 }
 
-function loadState() {
-  const user = typeof getCurrentUser === "function" ? getCurrentUser() : null;
-  if (!user) return JSON.parse(JSON.stringify(defaultState()));
-  return loadStateForUser(user);
-}
-
-function saveStateImmediate() {
+function saveState() {
   const key = getStateKey();
   if (key) localStorage.setItem(key, JSON.stringify(AppState));
 }
 
-function saveState() {
-  if (_saveTimeout) clearTimeout(_saveTimeout);
-  _saveTimeout = setTimeout(saveStateImmediate, 150);
-}
-
 function applyUserState(username) {
-  const state = loadStateForUser(username);
-  Object.keys(AppState).forEach((k) => delete AppState[k]);
-  Object.assign(AppState, state);
+  const key = STATE_PREFIX + username;
+  const raw = localStorage.getItem(key);
+  AppState = raw ? JSON.parse(raw) : defaultState();
 }
 
 function clearUserState() {
-  Object.keys(AppState).forEach((k) => delete AppState[k]);
-  Object.assign(AppState, defaultState());
+  AppState = defaultState();
 }
 
-const AppState = loadState();
+AppState = loadState();
 
-};
-function loadState() {
-  const raw = localStorage.getItem(STATE_KEY);
-  if (!raw) {
-    localStorage.setItem(STATE_KEY, JSON.stringify(defaultState));
-    return structuredClone(defaultState);
-  }
-  return JSON.parse(raw);
-}
-function saveState() {
-  localStorage.setItem(STATE_KEY, JSON.stringify(AppState));
-}
-const AppState = loadState();
 const StateActions = {
   setView(view) {
     AppState.ui.activeView = view;
@@ -121,7 +81,7 @@ const StateActions = {
     saveState();
   },
   setAiApiUrl(url) {
-    AppState.ui.aiApiUrl = (url || "").trim() || "http://localhost:3001";
+    AppState.ui.aiApiUrl = (url || "").trim();
     saveState();
   },
   addTransaction(tx) {
@@ -144,11 +104,12 @@ const StateActions = {
     }
   },
   removeCategory(type, name) {
-    AppState.categories[type] = AppState.categories[type].filter(c => c !== name);
+    AppState.categories[type] =
+      AppState.categories[type].filter(c => c !== name);
     saveState();
   },
   setBudget(category, amount) {
-    const key = getMonthKey();
+    const key = `${AppState.ui.activeYear}-${AppState.ui.activeMonth}`;
     AppState.budgets.monthly[key] ??= {};
     AppState.budgets.monthly[key][category] = Number(amount);
     saveState();
