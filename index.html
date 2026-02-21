@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MoneyMind Fusion</title>
+
+  <link rel="icon" sizes="32x32" href="assets/favicon.png">
+  <link rel="icon" sizes="48x48" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/favicon.png">
+
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/layout.css" />
+  <link rel="stylesheet" href="styles/components.css" />
+  <link rel="stylesheet" href="styles/pages.css" />
+  <link rel="stylesheet" href="styles/animations.css" />
+</head>
+
+<body>
+
+  <!-- AUTH SCREEN -->
+  <div id="authScreen" class="auth-screen">
+    <div class="auth-card">
+      <img src="assets/favicon.png" alt="Logo" class="auth-logo" />
+      <h1 class="auth-title">MoneyMind Fusion</h1>
+      <p class="auth-subtitle">Smart Finance Tracker</p>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="login">Log in</button>
+        <button class="auth-tab" data-tab="signup">Sign up</button>
+      </div>
+
+      <form id="authForm" class="auth-form">
+        <div class="input-group">
+          <label>Username</label>
+          <input type="text" id="authUsername" placeholder="Enter username" required autocomplete="username">
+        </div>
+
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" id="authPassword" placeholder="Enter password" required autocomplete="current-password">
+        </div>
+
+        <p id="authError" class="auth-error"></p>
+        <button type="submit" class="btn auth-submit">Log in</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="appRoot" class="app-root hidden">
+
+    <header class="app-header">
+      <div class="header-left logo-container">
+        <img src="assets/favicon.png" alt="MoneyMind Fusion Logo" class="app-logo" />
+        <div>
+          <h1 class="app-title">MoneyMind Fusion</h1>
+          <span class="app-subtitle">Smart Finance Tracker</span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <span id="liveClock"></span>
+        <button id="logoutBtn" class="btn secondary btn-sm" title="Log out">Log out</button>
+      </div>
+    </header>
+
+    <div class="app-shell">
+      <aside class="sidebar">
+        <nav class="nav-menu">
+          <button class="nav-item" data-view="records">📒 <label>Records</label></button>
+          <button class="nav-item" data-view="analysis">📊 <label>Analysis</label></button>
+          <button class="nav-item" data-view="ai-insights">🤖 <label>AI Insights</label></button>
+          <button class="nav-item" data-view="budgets">💰 <label>Budgets</label></button>
+          <button class="nav-item" data-view="accounts">🏦 <label>Accounts</label></button>
+          <button class="nav-item" data-view="categories">🏷️ <label>Categories</label></button>
+          <button class="nav-item" data-view="settings">⚙️ <label>Settings</label></button>
+        </nav>
+      </aside>
+
+      <main id="appMain" class="main-content"></main>
+    </div>
+
+    <button id="fabAddTransaction" class="fab pressable">+</button>
+
+    <nav class="mobile-nav">
+      <button data-view="records">📒</button>
+      <button data-view="analysis">📊</button>
+      <button data-view="ai-insights">🤖</button>
+      <button data-view="budgets">💰</button>
+      <button data-view="accounts">🏦</button>
+      <button data-view="settings">⚙️</button>
+    </nav>
+
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="scripts/auth.js"></script>
+  <script src="scripts/state.js"></script>
+  <script src="scripts/utils.js"></script>
+  <script src="scripts/records.js"></script>
+  <script src="scripts/transactions.js"></script>
+  <script src="scripts/analytics.js"></script>
+  <script src="scripts/budgets.js"></script>
+  <script src="scripts/accounts.js"></script>
+  <script src="scripts/categories.js"></script>
+  <script src="scripts/ai-insights.js"></script>
+  <script src="scripts/export.js"></script>
+  <script src="scripts/app.js"></script>
+  <script src="scripts/auth-ui.js"></script>
+
+  <script>
+    if (window.AppState?.ui?.theme === "light") {
+      document.documentElement.classList.add("theme-light");
+    }
+
+    const clock = document.getElementById("liveClock");
+    setInterval(() => {
+      const now = new Date();
+      if (clock) clock.textContent = now.toLocaleTimeString();
+    }, 1000);
+  </script>
+
+</body>
+</html>
